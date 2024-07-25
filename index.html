@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Land Area Calculator with Map</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .calculator {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+        .inputs, .outputs {
+            width: 48%;
+        }
+        .inputs input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .inputs button {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .inputs button:hover {
+            background: #218838;
+        }
+        .outputs .result {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        .outputs .output {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .outputs .output p {
+            margin: 5px 0;
+        }
+        .outputs canvas {
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <div class="inputs">
+        <h2>Advanced Land Area Calculator with Map</h2>
+        <form id="areaForm">
+            <label for="side1">Side 1 (meters):</label>
+            <input type="number" id="side1" name="side1" step="0.01" required>
+
+            <label for="side2">Side 2 (meters):</label>
+            <input type="number" id="side2" name="side2" step="0.01" required>
+
+            <label for="side3">Side 3 (meters):</label>
+            <input type="number" id="side3" name="side3" step="0.01" required>
+
+            <label for="side4">Side 4 (meters):</label>
+            <input type="number" id="side4" name="side4" step="0.01" required>
+
+            <button type="submit">Calculate Area</button>
+        </form>
+    </div>
+    <div class="outputs">
+        <div class="overall-output">
+            
+            <canvas id="canvas" width="400" height="400"></canvas>
+            <div class="result" id="result"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('areaForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const side1 = parseFloat(document.getElementById('side1').value);
+        const side2 = parseFloat(document.getElementById('side2').value);
+        const side3 = parseFloat(document.getElementById('side3').value);
+        const side4 = parseFloat(document.getElementById('side4').value);
+        
+        const ac = (side1 + side3) ;
+        const bd = (side2 + side4) ;
+
+        const x = ac/2;
+        const y = bd/2;
+
+        const area = x*y; 
+
+        const squareMeters = area;
+        const squareFeet = area * 10.7639;
+        const cents = area / 40.468564224;
+        const acres = area / 4046.8564224;
+        const ares = area / 100;
+        const hectares = area / 10000;
+
+        document.getElementById('result').innerHTML = `
+            <div class="output">
+                <p>square meters: ${squareMeters.toFixed(2)} m²</p>
+                <p>square feet: ${squareFeet.toFixed(2)} ft²</p>
+                <p>cents: ${cents.toFixed(2)} cents</p>
+                <p>acres: ${acres.toFixed(4)} acres</p>
+                <p>ares: ${ares.toFixed(2)} ares</p>
+                <p>hectares: ${hectares.toFixed(4)} hectares</p>
+            </div>
+        `;
+
+        // Draw the quadrilateral
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Normalize and scale the points
+        const sides = [side1, side2, side3, side4];
+        const maxSide = Math.max(...sides);
+        const scale = Math.min(canvas.width, canvas.height) / (maxSide * 1.2); // Scale to fit the canvas
+
+        const points = [
+            { x: 50, y: 50 },
+            { x: 50 + side1 * scale, y: 50 },
+            { x: 50 + side1 * scale, y: 50 + side2 * scale },
+            { x: 50, y: 50 + side4 * scale }
+        ];
+
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = 'blue';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Add labels
+        ctx.font = '12px Arial';
+        ctx.fillStyle = 'red';
+        ctx.fillText(`Side 1: ${side1} m`, (points[0].x + points[1].x) / 2, points[0].y - 5);
+        ctx.fillText(`Side 2: ${side2} m`, points[1].x + 5, (points[1].y + points[2].y) / 2);
+        ctx.fillText(`Side 3: ${side3} m`, (points[2].x + points[3].x) / 2, points[2].y + 15);
+        ctx.fillText(`Side 4: ${side4} m`, points[3].x - 45, (points[3].y + points[0].y) / 2);
+    });
+</script>
+
+</body>
+</html>
